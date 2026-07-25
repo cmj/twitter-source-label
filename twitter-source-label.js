@@ -228,6 +228,7 @@ function makeSourceLabel(source) {
     const label = document.createElement("span");
     label.className = LABEL_CLASS;
     label.textContent = source;
+    label.style.paddingTop = "5px";
     label.style.color = "rgb(83, 100, 113)";
     label.style.fontSize = "13px";
     label.style.fontFamily = 'TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
