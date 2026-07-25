@@ -48,6 +48,17 @@ if (UNREGISTER_SERVICE_WORKER && navigator.serviceWorker?.getRegistrations) {
             }
         })
         .catch(() => {});
+    if (navigator.serviceWorker) {
+        navigator.serviceWorker.register = function (...args) {
+            if (DEBUG) {
+                console.log("[SourceRestorer] blocked serviceWorker.register() call", args);
+            }
+            return Promise.reject(new DOMException(
+                "serviceWorker.register() blocked by SourceRestorer",
+                "SecurityError"
+            ));
+        };
+    }
 }
 
 const tweetSources = new Map();
