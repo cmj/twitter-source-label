@@ -230,6 +230,7 @@ function makeSourceLabel(source) {
     label.textContent = source;
     label.style.color = "rgb(83, 100, 113)";
     label.style.fontSize = "13px";
+    label.style.fontFamily = 'TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
     return label;
 }
 
