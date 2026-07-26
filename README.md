@@ -1,8 +1,9 @@
-# twitter source label
+# Twitter Source Label
 Tampermonkey script to restore source labels to tweets
 
- - Install Tampermonkey addon
- - Create new user script [+] copy/paste twittersource-label.js contents - save.
+ - Install [Tampermonkey](https://www.tampermonkey.net/) addon 
+ - Install user script from [Greasy Fork](https://greasyfork.org/en/scripts/588586-twitter-x-com-source-label-restorer)
+   - OR Create new user script [+] copy/paste twittersource-label.js contents - save.
  - Firefox - Enter `ctrl+F5` to force unregister/bypass the service worker.
  - Chrome - `about:extensions` > Details for Tampermonkey > turn on "Allow User Scripts"
 
