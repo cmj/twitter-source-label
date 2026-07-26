@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Twitter / X.com Source Label Restorer
 // @namespace    https://github.com/cmj
-// @version      2.0
+// @version      2.1
 // @description  Restore Android, Web, iPhone, TweetDeck, etc. source labels on X.
 // @match        https://x.com/*
 // @match        https://twitter.com/*
@@ -197,18 +197,18 @@ const SEP_CLASS = "source-restorer-sep";
 const ROW_CLASS = "source-restorer-row";
 const FOCAL_TIME_PATTERN = /\d{1,2}:\d{2}\s?(AM|PM)/i;
 
-function getTweetIdFromArticle(article) {
-    const timeEl = article.querySelector("time");
-    const link = timeEl?.closest("a[href*='/status/']");
-    if (!link) {
-        return null;
+function findStatusTime(article) {
+    const times = article.querySelectorAll("time");
+    for (const timeEl of times) {
+        const link = timeEl.closest("a[href*='/status/']");
+        if (link) {
+            return { timeEl, link };
+        }
     }
-    const match = link.href.match(/\/status\/(\d+)/);
-    return match ? match[1] : null;
+    return null;
 }
 
-function isFocalTweet(article) {
-    const timeEl = article.querySelector("time");
+function isFocalTweet(timeEl) {
     return !!timeEl && FOCAL_TIME_PATTERN.test(timeEl.textContent);
 }
 
@@ -291,11 +291,16 @@ function injectLabels() {
         console.log(`[SourceRestorer] injectLabels: ${articles.length} candidate article(s), ${tweetSources.size} cached source(s)`);
     }
     for (const article of articles) {
-        const id = getTweetIdFromArticle(article);
-        if (!id) {
+        const found = findStatusTime(article);
+        if (!found) {
             if (DEBUG) {
-                console.log("[SourceRestorer] no id resolved for article", article);
+                console.log("[SourceRestorer] no status time/link resolved for article", article);
             }
+            continue;
+        }
+        const match = found.link.href.match(/\/status\/(\d+)/);
+        const id = match ? match[1] : null;
+        if (!id) {
             continue;
         }
         const source = tweetSources.get(id);
@@ -305,9 +310,8 @@ function injectLabels() {
             }
             continue;
         }
-        const timeEl = article.querySelector("time");
-        const inserted = isFocalTweet(article)
-            ? injectFocalLabel(article, timeEl, source)
+        const inserted = isFocalTweet(found.timeEl)
+            ? injectFocalLabel(article, found.timeEl, source)
             : injectCompactLabel(article, source);
         if (DEBUG) {
             console.log(`[SourceRestorer] id ${id} inserted=${inserted} source="${source}"`);
