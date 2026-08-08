@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Twitter / X.com Source Label Restorer
 // @namespace    https://github.com/cmj
-// @version      2.1
+// @version      2.5
 // @description  Restore Android, Web, iPhone, TweetDeck, etc. source labels on X.
 // @match        https://x.com/*
 // @match        https://twitter.com/*
@@ -12,10 +12,6 @@
 (() => {
 "use strict";
 
-/***********************************************************************
- * Debug - Logs every capture to the console and pops up an alert
- ***********************************************************************/
-
 const DEBUG = false;
 let debugAlertShown = false;
 const debugSeenIds = new Set();
@@ -23,17 +19,6 @@ const debugSeenIds = new Set();
 if (DEBUG) {
     console.log("[SourceRestorer] script installed, fetch/XHR hooks going up now");
 }
-
-/***********************************************************************
- * Service worker removal
- *
- * X's service worker can serve a cached page shell almost instantly
- * on a normal reload, letting the page's own bundle start executing
- * (and grab the native fetch/XHR) before this script's document-start
- * injection lands. A force-reload (Ctrl+F5) bypasses the service
- * worker entirely for the navigation request. Unregistering it here
- * removes the race condition so normal reloads behave the same way.
- ***********************************************************************/
 
 const UNREGISTER_SERVICE_WORKER = true;
 
@@ -241,7 +226,7 @@ function makeSeparator() {
     sep.setAttribute("aria-hidden", "true");
     sep.textContent = " · ";
     sep.style.color = "rgb(83, 100, 113)";
-    sep.style.fontSize = "13px";
+    sep.style.fontSize = "15px";
     return sep;
 }
 
@@ -267,19 +252,20 @@ function injectFocalLabel(article, timeEl, source) {
 
 function injectCompactLabel(article, source) {
     const actionBar = findActionBar(article);
-    if (!actionBar?.parentElement) {
+    if (!actionBar) {
         if (DEBUG) {
             console.log("[SourceRestorer] compact: no actionBar found", article);
         }
         return false;
     }
 
-    const row = document.createElement("div");
-    row.className = ROW_CLASS;
-    row.style.cssText =
-        "padding: 2px 0 4px; line-height: 16px; width: 100%; display: flex; justify-content: flex-end;";
-    row.appendChild(makeSourceLabel(source));
-    actionBar.parentElement.insertBefore(row, actionBar);
+    const wrap = document.createElement("span");
+    wrap.className = ROW_CLASS;
+    wrap.style.cssText = "display: flex; align-items: center; flex-shrink: 0;";
+    const label = makeSourceLabel(source);
+    label.style.paddingTop = "0";
+    wrap.appendChild(label);
+    actionBar.appendChild(wrap);
     return true;
 }
 
