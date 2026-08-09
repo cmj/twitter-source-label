@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Twitter / X.com Source Label Restorer
 // @namespace    https://github.com/cmj
-// @version      2.5
+// @version      2.6
 // @description  Restore Android, Web, iPhone, TweetDeck, etc. source labels on X.
 // @match        https://x.com/*
 // @match        https://twitter.com/*
@@ -45,6 +45,21 @@ if (UNREGISTER_SERVICE_WORKER && navigator.serviceWorker?.getRegistrations) {
         };
     }
 }
+
+const GAP_STYLE_ID = "source-restorer-gap-style";
+
+function injectGapOverride() {
+    if (document.getElementById(GAP_STYLE_ID)) {
+        return;
+    }
+    const style = document.createElement("style");
+    style.id = GAP_STYLE_ID;
+    style.textContent =
+        'article[data-testid="tweet"] [role="group"].r-1kbdv8c { column-gap: 24px; }';
+    (document.head || document.documentElement).appendChild(style);
+}
+
+injectGapOverride();
 
 const tweetSources = new Map();
 
