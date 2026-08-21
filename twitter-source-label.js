@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name         Twitter / X.com Source Label Restorer
 // @namespace    https://github.com/cmj
-// @version      2.7
+// @version      2.8
+// @author       cmj
 // @description  Restore Android, Web, iPhone, TweetDeck, etc. source labels on X.
 // @match        https://x.com/*
 // @match        https://twitter.com/*
@@ -64,6 +65,7 @@ injectGapOverride();
 const tweetSources = new Map();
 
 const GRAPHQL_ENDPOINTS = [
+    "ExplorePage",
     "HomeTimeline",
     "HomeLatestTimeline",
     "TweetDetail",
