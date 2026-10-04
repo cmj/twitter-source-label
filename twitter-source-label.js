@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Twitter / X.com Source Label Restorer
 // @namespace    https://github.com/cmj
-// @version      2.8
+// @version      2.9
 // @author       cmj
 // @description  Restore Android, Web, iPhone, TweetDeck, etc. source labels on X.
 // @match        https://x.com/*
@@ -63,6 +63,8 @@ function injectGapOverride() {
 injectGapOverride();
 
 const tweetSources = new Map();
+const LABEL_REPOSTS_WITH_REPOSTER_SOURCE = true;
+const repostSources = new Map();
 
 const GRAPHQL_ENDPOINTS = [
     "ExplorePage",
@@ -73,6 +75,7 @@ const GRAPHQL_ENDPOINTS = [
     "UserTweets",
     "UserTweetsAndReplies",
     "UserOriginalsTimeline",
+    "UserRepostsTimeline",
     "UserMedia",
     "Bookmarks",
     "Likes",
@@ -164,6 +167,14 @@ function cacheTweet(obj) {
     const source = parseSource(rawSource);
     if (!source) {
         return;
+    }
+    if (LABEL_REPOSTS_WITH_REPOSTER_SOURCE) {
+        const rt = obj.legacy?.retweeted_status_result?.result ||
+            obj.result?.legacy?.retweeted_status_result?.result;
+        const origId = rt?.rest_id || rt?.tweet?.rest_id;
+        if (origId && !getSource(rt)) {
+            repostSources.set(origId, source);
+        }
     }
     const isNew = !tweetSources.has(id);
     tweetSources.set(id, source);
@@ -308,7 +319,10 @@ function injectLabels() {
         if (!id) {
             continue;
         }
-        const source = tweetSources.get(id);
+        let source = tweetSources.get(id);
+        if (!source && repostSources.has(id)) {
+            source = `${repostSources.get(id)}`;
+        }
         if (!source) {
             if (DEBUG) {
                 console.log(`[SourceRestorer] id ${id} has no cached source yet`);
